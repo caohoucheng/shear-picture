@@ -1,6 +1,10 @@
 # shear-picture
 裁剪图片保存为base64,可用于头像上传
 
+## 适用平台
+pc/移动端
+
+
 
 ## 使用方法
 #### 1.首先加载插件，需要用到的文件有shear.picture.js和shear.picture.css文件。
