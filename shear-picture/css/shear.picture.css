@@ -85,6 +85,13 @@ html {
 	z-index: 9;
 	position: absolute;
 	border-radius: 50%;
+	display: none;
+}
+
+#show-content{
+	z-index: 9;
+	position: absolute;
+	border-radius: 50%;
 }
 
 .portrait-footer {

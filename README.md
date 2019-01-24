@@ -31,9 +31,12 @@ pc/移动端
 </div>
 ```
 #### 3.调用Picture
+
+Picture(图片最大值(M),确定后的回调,取消后的回调)
+
 ```
 <script>
-Picture(function(e){
+Picture(1,function(e){
   //点击确定后的回调函数
   console.log(e)
 }, function(e) {

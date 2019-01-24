@@ -1,9 +1,13 @@
-function Picture(onOK,onCancel) {
+function Picture(size,onOK,onCancel) {
+	
+	var _left,_top,_width,_height;
+	
 	var div = document.createElement("div");
 	div.className = 'cj-mask';
 	div.innerHTML = '<div class="show-img">' +
 		'<img id="tulip" src="" alt="" width="300">' +
 		'<canvas id="myCanvas"></canvas>' +
+		'<div id="show-content"></div>'+
 		'</div>' +
 		'<div class="portrait-footer">' +
 		'<div class="fbt-cancel">取消</div>' +
@@ -23,6 +27,12 @@ function Picture(onOK,onCancel) {
 	//确定
 	document.querySelector('.fbt-ok').onclick = function() {
 		document.querySelector('.cj-mask').style.display = 'none';
+		
+		//清空画布
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		//填充画布
+		ctx.drawImage(img, _left, _top, _width, _height);
+		
 		document.querySelector('.my-img').src = canvas.toDataURL("image/png");
 		onOK(canvas.toDataURL("image/png"))
 	}
@@ -33,33 +43,66 @@ function Picture(onOK,onCancel) {
 		reader.readAsDataURL(this.files[0]);
 		reader.onload = function(e) {
 			var dataURL = reader.result;
+			
+			
+			var dataLength=dataURL.length;
+			var fileLength=parseInt(dataLength-(dataLength/8)*2);
+			
+			console.log(fileLength/1024/1024)
+			if(fileLength/1024/1024>size){
+				alert(`图片不得大于${size}M`);
+				return false;
+			}
+			
+			
 			document.querySelector('#tulip').src = dataURL;
 			document.querySelector('.cj-mask').style.display = 'block';
 
 			document.querySelector('#tulip').onload = function() {
+				
 				var imgW = document.querySelector('#tulip').width;
 				var imgH = document.querySelector('#tulip').height;
+				
 				var left, top;
 				// 图片高>图片宽
 				if (imgH > imgW) {
 					// 画布宽高=图片宽
 					canvas.width = imgW;
 					canvas.height = imgW;
+					document.querySelector('#show-content').style.width=`${imgW}px`;
+					document.querySelector('#show-content').style.height=`${imgW}px`;
 					left = 0;
 					top = (imgH - imgW) / 2;
 				} else {
 					// 画布宽高=图片高
 					canvas.width = imgH;
 					canvas.height = imgH;
+					document.querySelector('#show-content').style.width=`${imgH}px`;
+					document.querySelector('#show-content').style.height=`${imgH}px`;
 					left = (imgW - imgH) / 2;
 					top = 0;
 				}
-				document.querySelector('#myCanvas').style.left = left + 'px';
-				document.querySelector('#myCanvas').style.top = top + 'px';
+				// document.querySelector('#myCanvas').style.left = left + 'px';
+				// document.querySelector('#myCanvas').style.top = top + 'px';
+				document.querySelector('#show-content').style.left = `${left}px`;
+				document.querySelector('#show-content').style.top = `${top}px`;
+				
+				document.querySelector('#show-content').style.background=`url(${dataURL})`;
+				
+				document.querySelector('#show-content').style.backgroundSize=`${imgW}px`;
+				
+				document.querySelector('#show-content').style.backgroundPosition=`-${left}px -${top}px`;
+				
+				_left=-left;
+				_top=-top;
+				_width=imgW;
+				_height=imgH;
+				
 				img.src = dataURL;
-				img.onload = function() {
-					ctx.drawImage(img, -left, -top, imgW, imgH);
-				}
+				
+// 				img.onload = function() {
+// 					ctx.drawImage(img, -left, -top, imgW, imgH);
+// 				}
 			}
 
 		}
@@ -69,14 +112,14 @@ function Picture(onOK,onCancel) {
 
 	if ((navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i))) {
 		//按下
-		document.getElementById("myCanvas").addEventListener("touchstart", function(e) {
+		document.getElementById("show-content").addEventListener("touchstart", function(e) {
 			_x_start = e.touches[0].pageX; //起始点击位置
 			_y_start = e.touches[0].pageY; //起始点击位置
-			left_start = document.querySelector('#myCanvas').style.left; //元素左边距
-			top_start = document.querySelector('#myCanvas').style.top; //元素上边距
+			left_start = document.querySelector('#show-content').style.left; //元素左边距
+			top_start = document.querySelector('#show-content').style.top; //元素上边距
 		});
 		//移动
-		document.getElementById("myCanvas").addEventListener("touchmove", function(e) {
+		document.getElementById("show-content").addEventListener("touchmove", function(e) {
 			e.preventDefault(); //取消事件的默认动作。
 			_x_move = e.touches[0].pageX; //当前屏幕上所有触摸点的集合列表
 			_y_move = e.touches[0].pageY; //当前屏幕上所有触摸点的集合列表
@@ -87,8 +130,8 @@ function Picture(onOK,onCancel) {
 				parseFloat(_y_start) + parseFloat(top_start));
 			var imgW = document.querySelector('#tulip').width; //图片宽
 			var imgH = document.querySelector('#tulip').height; //图片高
-			var canvasW = document.querySelector('#myCanvas').width; //画布宽
-			var canvasH = document.querySelector('#myCanvas').height //画布高
+			var canvasW = parseFloat(document.querySelector('#show-content').style.width); //画布宽
+			var canvasH = parseFloat(document.querySelector('#show-content').style.height);//画布高
 			// 当选择区超出右边
 			if (left > imgW - canvasW) {
 				left = imgW - canvasW;
@@ -97,21 +140,26 @@ function Picture(onOK,onCancel) {
 			if (top > imgH - canvasH) {
 				top = imgH - canvasH;
 			}
-			document.getElementById("myCanvas").style.left = left + "px";
-			document.getElementById("myCanvas").style.top = top + "px";
+			document.getElementById("show-content").style.left = left + "px";
+			document.getElementById("show-content").style.top = top + "px";
+			document.querySelector('#show-content').style.backgroundPosition=`-${left}px -${top}px`;
+			_left=-left;
+			_top=-top;
+			_width=imgW;
+			_height=imgH;
 
 			//清空画布
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			// ctx.clearRect(0, 0, canvas.width, canvas.height);
 			//填充画布
-			ctx.drawImage(img, -left, -top, imgW, imgH);
+			// ctx.drawImage(img, -left, -top, imgW, imgH);
 		});
 	} else {
 		//按下
-		document.getElementById("myCanvas").addEventListener("mousedown", function(e) {
+		document.getElementById("show-content").addEventListener("mousedown", function(e) {
 			_x_start = e.clientX; //起始点击位置
 			_y_start = e.clientY; //起始点击位置
-			left_start = document.querySelector('#myCanvas').style.left; //元素左边距
-			top_start = document.querySelector('#myCanvas').style.top; //元素上边距
+			left_start = document.querySelector('#show-content').style.left; //元素左边距
+			top_start = document.querySelector('#show-content').style.top; //元素上边距
 			
 			//移动
 			// document.getElementById("myCanvas").addEventListener("mousemove ", function(e) {
@@ -125,8 +173,9 @@ function Picture(onOK,onCancel) {
 						parseFloat(_y_start) + parseFloat(top_start));
 					var imgW = document.querySelector('#tulip').width; //图片宽
 					var imgH = document.querySelector('#tulip').height; //图片高
-					var canvasW = document.querySelector('#myCanvas').width; //画布宽
-					var canvasH = document.querySelector('#myCanvas').height //画布高
+					
+					var canvasW = parseFloat(document.querySelector('#show-content').style.width); //画布宽
+					var canvasH = parseFloat(document.querySelector('#show-content').style.height);//画布高
 					// 当选择区超出右边
 					if (left > imgW - canvasW) {
 						left = imgW - canvasW;
@@ -135,13 +184,17 @@ function Picture(onOK,onCancel) {
 					if (top > imgH - canvasH) {
 						top = imgH - canvasH;
 					}
-					document.getElementById("myCanvas").style.left = left + "px";
-					document.getElementById("myCanvas").style.top = top + "px";
-								
+					document.getElementById("show-content").style.left = left + "px";
+					document.getElementById("show-content").style.top = top + "px";
+					document.querySelector('#show-content').style.backgroundPosition=`-${left}px -${top}px`;	
+					_left=-left;
+					_top=-top;
+					_width=imgW;
+					_height=imgH;
 					//清空画布
-					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					// ctx.clearRect(0, 0, canvas.width, canvas.height);
 					//填充画布
-					ctx.drawImage(img, -left, -top, imgW, imgH);
+					// ctx.drawImage(img, -left, -top, imgW, imgH);
 				}
 				document.onmouseup = function(){
 					document.onmousemove = null;
