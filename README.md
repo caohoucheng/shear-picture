@@ -5,7 +5,7 @@
 pc/移动端
 
 ## 演示
-[![baidu]](http://baidu.com)
+[![演示地址]](https://github.com/caohoucheng/shear-picture/blob/master/shear-picture/image/1.gif)
 
 
 ## 使用方法
