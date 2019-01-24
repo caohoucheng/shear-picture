@@ -6,7 +6,7 @@ pc/移动端
 
 ## 演示
 
-[演示地址]:https://github.com/caohoucheng/shear-picture/blob/master/shear-picture/image/1.gif "演示gif"
+[演示地址](https://github.com/caohoucheng/shear-picture/blob/master/shear-picture/image/1.gif)
 
 ## 使用方法
 #### 1.首先加载插件，需要用到的文件有shear.picture.js和shear.picture.css文件。
